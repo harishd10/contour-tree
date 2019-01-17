@@ -27,9 +27,10 @@ using namespace contourtree;
  *      dataName.order.dat: metadata about the branch decomposition
  *      dataName.order.bin: simplification order to generate the branch decomposition
  */
+template <class T>
 void exampleProcessing(std::string dataName, int dimx, int dimy, int dimz, bool persistence = true) {
     std::chrono::time_point<std::chrono::system_clock> start, end;
-    Grid3D<float> grid(dimx,dimy,dimz);
+    Grid3D<T> grid(dimx,dimy,dimz);
 
     std::string data = dataName;
 
