@@ -121,7 +121,7 @@ void SimplifyCT::removeArc(uint32_t ano) {
         mergedVertex = from;
     }
     nodes[from].next.erase(std::remove(nodes[from].next.begin(), nodes[from].next.end(), ano), nodes[from].next.end());
-    nodes[to].next.erase(std::remove(nodes[to].next.begin(), nodes[to].next.end(), ano), nodes[to].next.end());
+    nodes[to].prev.erase(std::remove(nodes[to].prev.begin(), nodes[to].prev.end(), ano), nodes[to].prev.end());
     removed[ano] = true;
 
     vArray[mergedVertex].push_back(ano);
