@@ -29,7 +29,8 @@ public:
     void computeTree(ScalarFunction* data, TreeType type);
     void computeJoinTree();
     void computeSplitTree();
-    void computeArcMap();
+    std::tuple<uint32_t, uint32_t, std::vector<int64_t>, std::vector<scalar_t>, std::vector<char>,
+        std::vector<int64_t>> computeArcMap(TreeType tree);
     const std::vector<uint32_t>& getArcMap(TreeType type) const;
     void output(std::string fileName, TreeType tree);
 
