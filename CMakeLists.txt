@@ -39,4 +39,4 @@ set(SOURCE_FILES
 # Create library
 add_library(ContourTree STATIC ${SOURCE_FILES} ${HEADER_FILES})
 
-target_include_directories(ContourTree PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(ContourTree PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/ContourTree)
