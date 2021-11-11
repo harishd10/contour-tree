@@ -145,6 +145,7 @@ ContourTree::computeArcMap() {
 
     return {arcNo, nodeids, nodefns, nodeTypes, arcs};
 }
+}
 void ContourTree::output(std::string fileName) {
     std::cout << "removing deg-2 nodes and computing segmentation" << std::endl;
 
