@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 
+#include "constants.h"
 namespace contourtree {
 
 class MergeTree;
@@ -22,6 +23,9 @@ public:
 
     void setup(const MergeTree * tree);
     void computeCT();
+    std::tuple<uint32_t, std::vector<int64_t>, std::vector<scalar_t>, std::vector<char>,
+               std::vector<int64_t>>
+    computeArcMap();
     void output(std::string fileName);
 
 private:

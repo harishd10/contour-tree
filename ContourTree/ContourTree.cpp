@@ -99,15 +99,11 @@ void ContourTree::computeCT() {
     }
 }
 
-void ContourTree::output(std::string fileName) {
-    std::cout << "removing deg-2 nodes and computing segmentation" << std::endl;
+std::tuple<uint32_t, std::vector<int64_t>, std::vector<scalar_t>, std::vector<char>,
+           std::vector<int64_t>>
+ContourTree::computeArcMap() {
 
-    // saving some memory
-    nodesJoin.clear();
-    nodesJoin.shrink_to_fit();
-    nodesSplit.clear();
-    nodesSplit.shrink_to_fit();
-
+    uint32_t arcNo = 0;
     std::vector<int64_t> nodeids;
     std::vector<scalar_t> nodefns;
     std::vector<char> nodeTypes;
@@ -115,7 +111,7 @@ void ContourTree::output(std::string fileName) {
 
     arcMap.resize(nv, -1);
 
-    uint32_t arcNo = 0;
+    for (int64_t i = 0; i < nv; i++) {
     for(int64_t i = 0;i < nv;i ++) {
         // go in sorted order
         int64_t v = tree->sv[i];
@@ -146,6 +142,19 @@ void ContourTree::output(std::string fileName) {
             arcNo ++;
         }
     }
+
+    return {arcNo, nodeids, nodefns, nodeTypes, arcs};
+}
+void ContourTree::output(std::string fileName) {
+    std::cout << "removing deg-2 nodes and computing segmentation" << std::endl;
+
+    // saving some memory
+    nodesJoin.clear();
+    nodesJoin.shrink_to_fit();
+    nodesSplit.clear();
+    nodesSplit.shrink_to_fit();
+
+    auto [arcNo, nodeids, nodefns, nodeTypes, arcs] = computeArcMap();
 
     // write meta data
     std::cout << "Writing meta data" << std::endl;

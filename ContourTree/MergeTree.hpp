@@ -29,6 +29,8 @@ public:
     void computeTree(ScalarFunction* data, TreeType type);
     void computeJoinTree();
     void computeSplitTree();
+    void computeArcMap();
+    const std::vector<uint32_t>& getArcMap(TreeType type) const;
     void output(std::string fileName, TreeType tree);
 
 protected:
@@ -53,6 +55,7 @@ public:
 
     std::set<int64_t> set;
     ContourTree ctree;
+    std::vector<uint32_t> arcMap;
 
 private:
     std::vector<int64_t> star;
