@@ -20,8 +20,7 @@ struct Arc {
     uint32_t id;
 };
 
-class ContourTreeData
-{
+class ContourTreeData {
 public:
     ContourTreeData();
 
@@ -29,7 +28,8 @@ public:
     void loadTxtFile(std::string fileName);
 
 protected:
-    void loadData(const std::vector<int64_t>& nodeids, const std::vector<scalar_t>& nodefns, const std::vector<char>& nodeTypes, const std::vector<int64_t>& iarcs);
+    void loadData(const std::vector<int64_t>& nodeids, const std::vector<scalar_t>& nodefns,
+                  const std::vector<char>& nodeTypes, const std::vector<int64_t>& iarcs);
 
 public:
     uint32_t noNodes;
@@ -44,6 +44,6 @@ public:
     std::unordered_map<int64_t, uint32_t> nodeMap;
 };
 
-} // namespace contourtree
+}  // namespace contourtree
 
-#endif // CONTOURTREEDATA_HPP
+#endif  // CONTOURTREEDATA_HPP

@@ -12,8 +12,7 @@ struct Feature {
     uint32_t from, to;
 };
 
-class TopologicalFeatures
-{
+class TopologicalFeatures {
 public:
     TopologicalFeatures();
 
@@ -27,14 +26,14 @@ public:
     std::vector<float> wts;
 
     // when completely partitioning branch decomposition
-    std::vector<std::vector<uint32_t> > featureArcs;
+    std::vector<std::vector<uint32_t>> featureArcs;
     SimplifyCT sim;
 
 private:
-    void addFeature(SimplifyCT &sim, uint32_t bno, std::vector<Feature> &features, std::set<size_t> &featureSet);
-
+    void addFeature(SimplifyCT& sim, uint32_t bno, std::vector<Feature>& features,
+                    std::set<size_t>& featureSet);
 };
 
-}
+}  // namespace contourtree
 
-#endif // TOPOLOGICALFEATURES_HPP
+#endif  // TOPOLOGICALFEATURES_HPP

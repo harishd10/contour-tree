@@ -3,12 +3,11 @@
 
 #include "ScalarFunction.hpp"
 #include <set>
-#include<string>
+#include <string>
 
 namespace contourtree {
 
-class TriMesh : public ScalarFunction
-{
+class TriMesh : public ScalarFunction {
 public:
     struct Vertex {
         std::set<uint32_t> adj;
@@ -19,7 +18,7 @@ public:
 
     int getMaxDegree();
     int getVertexCount();
-    int getStar(int64_t v, std::vector<int64_t> &star);
+    int getStar(int64_t v, std::vector<int64_t>& star);
     bool lessThan(int64_t v1, int64_t v2);
     scalar_t getFunctionValue(int64_t v);
 
@@ -33,6 +32,6 @@ public:
     int maxStar;
 };
 
-}
+}  // namespace contourtree
 
-#endif // TRIMESH_HPP
+#endif  // TRIMESH_HPP
