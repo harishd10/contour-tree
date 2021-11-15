@@ -2,9 +2,6 @@ cmake_minimum_required(VERSION 3.1)
 
 project(ContourTree)
 
-find_package(Qt5Core REQUIRED)
-find_package(OpenMP REQUIRED)
-
 set (CMAKE_CXX_STANDARD 17)
 
 # Add header files
