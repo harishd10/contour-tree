@@ -11,16 +11,13 @@
 
 namespace contourtree {
 
-class MergeTree
-{
+class MergeTree {
 public:
     struct Compare {
-        Compare(ScalarFunction *data):data(data) {}
-        bool operator () (int64_t v1, int64_t v2) {
-            return data->lessThan(v1,v2);
-        }
+        Compare(ScalarFunction* data) : data(data) {}
+        bool operator()(int64_t v1, int64_t v2) { return data->lessThan(v1, v2); }
 
-        ScalarFunction *data;
+        ScalarFunction* data;
     };
 
 public:
@@ -58,6 +55,6 @@ private:
     std::vector<int64_t> star;
 };
 
-}
+}  // namespace contourtree
 
-#endif // MERGETREE_H
+#endif  // MERGETREE_H

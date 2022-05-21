@@ -10,10 +10,10 @@ const char SADDLE = 4;
 
 // Following the nomenclature of original Carr paper.
 // JoinTree -> maxima and SplitTree -> minima
-enum TreeType {TypeJoinTree, TypeSplitTree, TypeContourTree};
+enum TreeType { TypeJoinTree, TypeSplitTree, TypeContourTree };
 
 typedef float scalar_t;
 
-}
+}  // namespace contourtree
 
-#endif // CONSTANTS_H
+#endif  // CONSTANTS_H

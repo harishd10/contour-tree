@@ -11,13 +11,12 @@ namespace contourtree {
  * Assumes signed primitives
  */
 template <class T>
-class DisjointSets
-{
+class DisjointSets {
 public:
     std::vector<T> set;
 
 public:
-    DisjointSets(){}
+    DisjointSets() {}
     DisjointSets(uint64_t size);
 
     void merge(const T& ele1, const T& ele2);
@@ -27,15 +26,14 @@ private:
     void mergeSet(const T& root1, const T& root2);
 };
 
-
 template <class T>
 DisjointSets<T>::DisjointSets(uint64_t size) {
     set.resize(size, (T)(-1));
 }
 
-template<class T>
-void DisjointSets<T>::merge(const T &ele1, const T &ele2) {
-    this->mergeSet(find(ele1),find(ele2));
+template <class T>
+void DisjointSets<T>::merge(const T& ele1, const T& ele2) {
+    this->mergeSet(find(ele1), find(ele2));
 }
 
 /**
@@ -45,8 +43,8 @@ void DisjointSets<T>::merge(const T &ele1, const T &ele2) {
  *            the element being searched for.
  * @return the set containing x.
  */
-template<class T>
-T DisjointSets<T>::find(const T &x) {
+template <class T>
+T DisjointSets<T>::find(const T& x) {
     T f = set[x];
     if (f < 0) {
         return x;
@@ -68,8 +66,7 @@ T DisjointSets<T>::find(const T &x) {
  */
 template <class T>
 void DisjointSets<T>::mergeSet(const T& root1, const T& root2) {
-    if (root1 == root2)
-        return;
+    if (root1 == root2) return;
 
     int r1 = set[root1];
     int r2 = set[root2];
@@ -87,8 +84,6 @@ void DisjointSets<T>::mergeSet(const T& root1, const T& root2) {
     }
 }
 
-} // namespace
+}  // namespace contourtree
 
-
-#endif // DISJOINTSETS_HPP
-
+#endif  // DISJOINTSETS_HPP

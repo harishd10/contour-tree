@@ -8,43 +8,33 @@
 
 namespace contourtree {
 
-TriMesh::TriMesh()
-{
+TriMesh::TriMesh() {}
 
-}
+int TriMesh::getMaxDegree() { return maxStar; }
 
-int TriMesh::getMaxDegree() {
-    return maxStar;
-}
+int TriMesh::getVertexCount() { return nv; }
 
-int TriMesh::getVertexCount() {
-    return nv;
-}
-
-int TriMesh::getStar(int64_t v, std::vector<int64_t> &star) {
+int TriMesh::getStar(int64_t v, std::vector<int64_t>& star) {
     int ct = 0;
-    for(uint32_t vv: vertices[v].adj) {
+    for (uint32_t vv : vertices[v].adj) {
         star[ct] = vv;
-        ct ++;
+        ct++;
     }
     return ct;
 }
 
 bool TriMesh::lessThan(int64_t v1, int64_t v2) {
-    if(fnVals[v1] < fnVals[v2]) {
+    if (fnVals[v1] < fnVals[v2]) {
         return true;
-    } else if(fnVals[v1] == fnVals[v2]) {
+    } else if (fnVals[v1] == fnVals[v2]) {
         return (v1 < v2);
     }
     return false;
 }
 
-scalar_t TriMesh::getFunctionValue(int64_t v) {
-    return (scalar_t) this->fnVals[v];
-}
+scalar_t TriMesh::getFunctionValue(int64_t v) { return (scalar_t)this->fnVals[v]; }
 
-void TriMesh::loadData(std::string fileName)
-{
+void TriMesh::loadData(std::string fileName) {
     std::ifstream ip(fileName);
     std::string s;
     ip >> s;
@@ -53,13 +43,13 @@ void TriMesh::loadData(std::string fileName)
 
     vertices.resize(nv);
     fnVals.resize(nv);
-    for(int i = 0;i < nv;i ++) {
-        float x,y,z,fn;
+    for (int i = 0; i < nv; i++) {
+        float x, y, z, fn;
         ip >> x >> y >> z >> fn;
         fnVals[i] = fn;
     }
-    for(int i = 0;i < nt;i ++) {
-        int ps,v1,v2,v3;
+    for (int i = 0; i < nt; i++) {
+        int ps, v1, v2, v3;
         ip >> ps >> v1 >> v2 >> v3;
         assert(ps == 3);
 
@@ -72,10 +62,10 @@ void TriMesh::loadData(std::string fileName)
     }
 
     maxStar = 0;
-    for(int i = 0;i < nv;i ++) {
-        maxStar = std::max(maxStar,(int)vertices[i].adj.size());
+    for (int i = 0; i < nv; i++) {
+        maxStar = std::max(maxStar, (int)vertices[i].adj.size());
     }
     std::cout << maxStar << std::endl;
 }
 
-}
+}  // namespace contourtree

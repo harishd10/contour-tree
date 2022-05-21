@@ -8,7 +8,7 @@
 
 namespace contourtree {
 
-TopologicalFeatures::TopologicalFeatures() { }
+TopologicalFeatures::TopologicalFeatures() {}
 
 void TopologicalFeatures::loadData(std::string dataLocation, bool partition) {
     ctdata = ContourTreeData();
@@ -26,17 +26,18 @@ void TopologicalFeatures::loadData(std::string dataLocation, bool partition) {
 
     std::string binFile = dataLocation + ".order.bin";
     std::ifstream bin(binFile, std::ios::binary);
-    bin.read((char *)order.data(),order.size() * sizeof(uint32_t));
-    bin.read((char *)wts.data(),wts.size() * sizeof(float));
+    bin.read((char*)order.data(), order.size() * sizeof(uint32_t));
+    bin.read((char*)wts.data(), wts.size() * sizeof(float));
     bin.close();
 
-    if(partition) {
+    if (partition) {
         sim.setInput(&ctdata);
-        sim.simplify(order,1,0,wts);
+        sim.simplify(order, 1, 0, wts);
     }
 }
 
-void TopologicalFeatures::addFeature(SimplifyCT &sim, uint32_t bno, std::vector<Feature> &features, std::set<size_t> &featureSet) {
+void TopologicalFeatures::addFeature(SimplifyCT& sim, uint32_t bno, std::vector<Feature>& features,
+                                     std::set<size_t>& featureSet) {
     Branch b1 = sim.branches.at(bno);
     Feature f;
     f.from = ctdata.nodeVerts[b1.from];
@@ -44,17 +45,17 @@ void TopologicalFeatures::addFeature(SimplifyCT &sim, uint32_t bno, std::vector<
 
     std::deque<size_t> queue;
     queue.push_back(bno);
-    while(queue.size() > 0) {
+    while (queue.size() > 0) {
         size_t b = queue.front();
         queue.pop_front();
-        if(b != bno && featureSet.find(b) != featureSet.end()) {
+        if (b != bno && featureSet.find(b) != featureSet.end()) {
             // this cannot happen
             assert(false);
         }
         featureSet.insert(b);
         Branch br = sim.branches.at(b);
-        f.arcs.insert(f.arcs.end(),br.arcs.data(), br.arcs.data()+br.arcs.size());
-        for(int i = 0;i < br.children.size();i ++) {
+        f.arcs.insert(f.arcs.end(), br.arcs.data(), br.arcs.data() + br.arcs.size());
+        for (int i = 0; i < br.children.size(); i++) {
             uint32_t bc = br.children.at(i);
             queue.push_back(bc);
         }
@@ -66,20 +67,20 @@ std::vector<Feature> TopologicalFeatures::getPartitionedExtremaFeatures(int topk
     std::vector<Feature> features;
 
     std::set<size_t> featureSet;
-    if(topk == -1) {
+    if (topk == -1) {
         topk = 0;
-        for(int i = order.size() - 1;i >= 0 ;i --) {
-            if(wts[i] > th) {
-                topk ++;
+        for (int i = order.size() - 1; i >= 0; i--) {
+            if (wts[i] > th) {
+                topk++;
                 featureSet.insert(order[i]);
             } else {
                 break;
             }
         }
     }
-    if(topk == 0) topk = 1;
+    if (topk == 0) topk = 1;
 
-    for(int _i = 0;_i < topk;_i ++) {
+    for (int _i = 0; _i < topk; _i++) {
         size_t i = order.size() - _i - 1;
         Branch b1 = sim.branches.at(order[i]);
         Feature f;
@@ -89,15 +90,15 @@ std::vector<Feature> TopologicalFeatures::getPartitionedExtremaFeatures(int topk
         size_t bno = order[i];
         std::deque<size_t> queue;
         queue.push_back(bno);
-        while(queue.size() > 0) {
+        while (queue.size() > 0) {
             size_t b = queue.front();
             queue.pop_front();
-            if(b != bno && featureSet.find(b) != featureSet.end()) {
+            if (b != bno && featureSet.find(b) != featureSet.end()) {
                 continue;
             }
             Branch br = sim.branches.at(b);
-            f.arcs.insert(f.arcs.end(),br.arcs.data(), br.arcs.data()+br.arcs.size());
-            for(int i = 0;i < br.children.size();i ++) {
+            f.arcs.insert(f.arcs.end(), br.arcs.data(), br.arcs.data() + br.arcs.size());
+            for (int i = 0; i < br.children.size(); i++) {
                 int bc = br.children.at(i);
                 queue.push_back(bc);
             }
@@ -111,19 +112,19 @@ std::vector<Feature> TopologicalFeatures::getArcFeatures(int topk, float th) {
     SimplifyCT sim;
     sim.setInput(&ctdata);
 
-    sim.simplify(order,topk,th,wts);
+    sim.simplify(order, topk, th, wts);
 
     std::vector<Feature> features;
     std::set<size_t> featureSet;
-    for(size_t _i = 0;_i < sim.branches.size();_i ++) {
-        if(sim.removed[_i]) {
+    for (size_t _i = 0; _i < sim.branches.size(); _i++) {
+        if (sim.removed[_i]) {
             continue;
         }
         featureSet.insert(_i);
     }
-    for(size_t _i = 0;_i < sim.branches.size();_i ++) {
+    for (size_t _i = 0; _i < sim.branches.size(); _i++) {
         size_t i = _i;
-        if(sim.removed[i]) {
+        if (sim.removed[i]) {
             continue;
         }
         Branch b1 = sim.branches.at(i);
@@ -134,16 +135,16 @@ std::vector<Feature> TopologicalFeatures::getArcFeatures(int topk, float th) {
         size_t bno = i;
         std::deque<size_t> queue;
         queue.push_back(bno);
-        while(queue.size() > 0) {
+        while (queue.size() > 0) {
             size_t b = queue.front();
             queue.pop_front();
-            if(b != bno && featureSet.find(b) != featureSet.end()) {
+            if (b != bno && featureSet.find(b) != featureSet.end()) {
                 // this cannot happen
                 assert(false);
             }
             Branch br = sim.branches.at(b);
-            f.arcs.insert(f.arcs.end(),br.arcs.data(), br.arcs.data()+br.arcs.size());
-            for(int i = 0;i < br.children.size();i ++) {
+            f.arcs.insert(f.arcs.end(), br.arcs.data(), br.arcs.data() + br.arcs.size());
+            for (int i = 0; i < br.children.size(); i++) {
                 int bc = br.children.at(i);
                 queue.push_back(bc);
             }
@@ -153,4 +154,4 @@ std::vector<Feature> TopologicalFeatures::getArcFeatures(int topk, float th) {
     return features;
 }
 
-}
+}  // namespace contourtree

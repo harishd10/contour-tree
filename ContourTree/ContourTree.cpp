@@ -10,14 +10,15 @@ namespace contourtree {
 
 ContourTree::ContourTree() {}
 
-void ContourTree::setup(const MergeTree *tree) {
-    std::cout << "setting up merge process" << std::endl;;
+void ContourTree::setup(const MergeTree* tree) {
+    std::cout << "setting up merge process" << std::endl;
+    ;
     this->tree = tree;
     nv = tree->data->getVertexCount();
     nodesJoin.resize(nv);
     nodesSplit.resize(nv);
     ctNodes.resize(nv);
-    for(int64_t i = 0;i < nv;i ++) {
+    for (int64_t i = 0; i < nv; i++) {
         // init
         nodesJoin[i].v = i;
         nodesSplit[i].v = i;
@@ -26,7 +27,7 @@ void ContourTree::setup(const MergeTree *tree) {
         // add join arcs
         int64_t to = i;
         int64_t from = tree->prev[to];
-        if(from != -1) {
+        if (from != -1) {
             nodesSplit[from].next.push_back(to);
             nodesSplit[to].prev.push_back(from);
         }
@@ -34,7 +35,7 @@ void ContourTree::setup(const MergeTree *tree) {
         // add split arcs
         to = tree->next[i];
         from = i;
-        if(to != -1) {
+        if (to != -1) {
             nodesJoin[from].next.push_back(to);
             nodesJoin[to].prev.push_back(from);
         }
@@ -42,28 +43,29 @@ void ContourTree::setup(const MergeTree *tree) {
 }
 
 void ContourTree::computeCT() {
-    std::cout << "merging join and split trees" << std::endl;;
+    std::cout << "merging join and split trees" << std::endl;
+    ;
     std::deque<int64_t> q;
-    for(int64_t v = 0;v < nv;v ++) {
-        Node &jn = nodesJoin[v];
-        Node &sn = nodesSplit[v];
-        if(sn.next.size() + jn.prev.size() == 1) {
+    for (int64_t v = 0; v < nv; v++) {
+        Node& jn = nodesJoin[v];
+        Node& sn = nodesSplit[v];
+        if (sn.next.size() + jn.prev.size() == 1) {
             q.push_back(v);
         }
     }
 
-    while(q.size() > 0) {
+    while (q.size() > 0) {
         int xi = q.front();
         q.pop_front();
-        Node &jn = nodesJoin[xi];
-        Node &sn = nodesSplit[xi];
-        if(sn.next.size() == 0 && sn.prev.size() == 0) {
+        Node& jn = nodesJoin[xi];
+        Node& sn = nodesSplit[xi];
+        if (sn.next.size() == 0 && sn.prev.size() == 0) {
             assert((jn.next.size() == 0 && jn.prev.size() == 0));
             continue;
         }
 
-        if(sn.next.size() == 0) {
-            if(sn.prev.size() > 1) {
+        if (sn.next.size() == 0) {
+            if (sn.prev.size() > 1) {
                 std::cout << "Can this happen too???" << std::endl;
                 assert(false);
             }
@@ -75,11 +77,11 @@ void ContourTree::computeCT() {
             int to = xi;
             assert(fr < nv && to < nv);
             addArc(fr, to);
-            if(nodesSplit[xj].next.size() + nodesJoin[xj].prev.size() == 1) {
+            if (nodesSplit[xj].next.size() + nodesJoin[xj].prev.size() == 1) {
                 q.push_back(xj);
             }
         } else {
-            if(jn.next.size() > 1) {
+            if (jn.next.size() > 1) {
                 std::cout << "Can this happen too???" << std::endl;
                 assert(false);
             }
@@ -92,7 +94,7 @@ void ContourTree::computeCT() {
             assert(fr < nv && to < nv);
             addArc(fr, to);
 
-            if(nodesSplit[xj].next.size() + nodesJoin[xj].prev.size() == 1) {
+            if (nodesSplit[xj].next.size() + nodesJoin[xj].prev.size() == 1) {
                 q.push_back(xj);
             }
         }
@@ -116,11 +118,11 @@ void ContourTree::output(std::string fileName) {
     arcMap.resize(nv, -1);
 
     uint32_t arcNo = 0;
-    for(int64_t i = 0;i < nv;i ++) {
+    for (int64_t i = 0; i < nv; i++) {
         // go in sorted order
         int64_t v = tree->sv[i];
         // process only regular vertices
-        if(ctNodes[v].prev.size() == 1 && ctNodes[v].next.size() == 1) {
+        if (ctNodes[v].prev.size() == 1 && ctNodes[v].next.size() == 1) {
             continue;
         }
         nodeids.push_back(v);
@@ -130,9 +132,9 @@ void ContourTree::output(std::string fileName) {
         // create an arc for which this critical point is the source of the arc
         // traverse up for each of its arcs
         int64_t from = v;
-        for(int i = 0;i < ctNodes[v].next.size();i ++) {
+        for (int i = 0; i < ctNodes[v].next.size(); i++) {
             int64_t vv = ctNodes[v].next[i];
-            while(ctNodes[vv].prev.size() == 1 && ctNodes[vv].next.size() == 1) {
+            while (ctNodes[vv].prev.size() == 1 && ctNodes[vv].next.size() == 1) {
                 // regular
                 arcMap[vv] = arcNo;
                 vv = ctNodes[vv].next[0];
@@ -143,7 +145,7 @@ void ContourTree::output(std::string fileName) {
             // create arc (from, to)
             arcs.push_back(from);
             arcs.push_back(to);
-            arcNo ++;
+            arcNo++;
         }
     }
 
@@ -158,47 +160,47 @@ void ContourTree::output(std::string fileName) {
 
     std::cout << "writing tree output" << std::endl;
     std::string rgFile = fileName + ".rg.bin";
-    std::ofstream of(rgFile,std::ios::binary);
-    of.write((char *)nodeids.data(),nodeids.size() * sizeof(int64_t));
-    of.write((char *)nodefns.data(),nodeids.size() * sizeof(scalar_t));
-    of.write((char *)nodeTypes.data(),nodeids.size());
-    of.write((char *)arcs.data(),arcs.size() * sizeof(int64_t));
+    std::ofstream of(rgFile, std::ios::binary);
+    of.write((char*)nodeids.data(), nodeids.size() * sizeof(int64_t));
+    of.write((char*)nodefns.data(), nodeids.size() * sizeof(scalar_t));
+    of.write((char*)nodeTypes.data(), nodeids.size());
+    of.write((char*)arcs.data(), arcs.size() * sizeof(int64_t));
     of.close();
 
     std::cout << "writing partition" << std::endl;
     std::string rawFile = fileName + ".part.raw";
     of.open(rawFile, std::ios::binary);
-    of.write((char *)arcMap.data(), arcMap.size() * sizeof(uint32_t));
+    of.write((char*)arcMap.data(), arcMap.size() * sizeof(uint32_t));
     of.close();
 }
 
-void ContourTree::remove(int64_t xi, std::vector<ContourTree::Node> &nodeArray) {
-    Node &jn = nodeArray[xi];
+void ContourTree::remove(int64_t xi, std::vector<ContourTree::Node>& nodeArray) {
+    Node& jn = nodeArray[xi];
 
-    if(jn.prev.size() == 1 && jn.next.size() == 1) {
+    if (jn.prev.size() == 1 && jn.next.size() == 1) {
         int64_t p = jn.prev[0];
         int64_t n = jn.next[0];
-        Node &pn = nodeArray[p];
-        Node &nn = nodeArray[n];
+        Node& pn = nodeArray[p];
+        Node& nn = nodeArray[n];
 
         removeAndAdd(pn.next, xi, nn.v);
         removeAndAdd(nn.prev, xi, pn.v);
-    } else if(jn.prev.size() == 0 && jn.next.size() == 1) {
+    } else if (jn.prev.size() == 0 && jn.next.size() == 1) {
         int n = jn.next[0];
-        Node &nn = nodeArray[n];
+        Node& nn = nodeArray[n];
         remove(nn.prev, xi);
-    } else if(jn.prev.size() == 1 && jn.next.size() == 0) {
+    } else if (jn.prev.size() == 1 && jn.next.size() == 0) {
         int p = jn.prev[0];
-        Node &pn = nodeArray[p];
+        Node& pn = nodeArray[p];
         remove(pn.next, xi);
     } else {
         assert(false);
     }
 }
 
-void ContourTree::removeAndAdd(std::vector<int64_t> &arr, int64_t rem, int64_t add) {
-    for(int i = 0;i < arr.size();i ++) {
-        if(arr[i] == rem) {
+void ContourTree::removeAndAdd(std::vector<int64_t>& arr, int64_t rem, int64_t add) {
+    for (int i = 0; i < arr.size(); i++) {
+        if (arr[i] == rem) {
             arr[i] = add;
             return;
         }
@@ -206,10 +208,10 @@ void ContourTree::removeAndAdd(std::vector<int64_t> &arr, int64_t rem, int64_t a
     assert(false);
 }
 
-void ContourTree::remove(std::vector<int64_t> &arr, int64_t xi) {
-    for(int i = 0;i < arr.size();i ++) {
-        if(arr[i] == xi) {
-            if(i != arr.size() - 1) {
+void ContourTree::remove(std::vector<int64_t>& arr, int64_t xi) {
+    for (int i = 0; i < arr.size(); i++) {
+        if (arr[i] == xi) {
+            if (i != arr.size() - 1) {
                 arr[i] = arr[arr.size() - 1];
             }
             arr.pop_back();
@@ -224,5 +226,4 @@ void ContourTree::addArc(int64_t from, int64_t to) {
     ctNodes[to].prev.push_back(from);
 }
 
-
-}
+}  // namespace contourtree
