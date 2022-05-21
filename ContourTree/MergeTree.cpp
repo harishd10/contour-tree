@@ -124,18 +124,21 @@ void MergeTree::computeSplitTree() {
     newRoot = in;
 }
 
-void MergeTree::output(std::string fileName, TreeType tree)
-{
-    if(tree == TypeContourTree) {
-        ctree.output(fileName);
-        return;
+const std::vector<uint32_t>& MergeTree::getArcMap(TreeType type) const {
+
+    if (type == TypeContourTree) {
+        return ctree.arcMap;
     }
-    // assume size of contour tree fits within 4 bytes
-    std::vector<uint32_t> arcMap;
-    if(newVertex) {
-        arcMap.resize(noVertices + 1,-1);
+    return arcMap;
+}
+
+std::tuple<uint32_t, uint32_t, std::vector<int64_t>, std::vector<scalar_t>, std::vector<char>,
+           std::vector<int64_t>>
+MergeTree::computeArcMap(TreeType tree) {
+    if (newVertex) {
+        arcMap.resize(noVertices + 1, -1);
     } else {
-        arcMap .resize(noVertices,-1);
+        arcMap.resize(noVertices, -1);
     }
     uint32_t noArcs = 0;
     uint32_t noNodes = 0;
@@ -148,15 +151,6 @@ void MergeTree::output(std::string fileName, TreeType tree)
         noNodes ++;
     }
     noArcs = noNodes - 1;
-
-    // write meta data
-    std::cout << "Writing meta data" << std::endl;
-    {
-        std::ofstream pr(fileName + ".rg.dat");
-        pr << noNodes << "\n";
-        pr << noArcs << "\n";
-        pr.close();
-    }
 
     std::cout << ("Creating required memory!") << std::endl;
     std::vector<int64_t> nodeids(noNodes);
@@ -262,6 +256,25 @@ void MergeTree::output(std::string fileName, TreeType tree)
         assert(arcNo == noArcs);
     }
 
+    return {noArcs, noNodes, nodeids, nodefns, nodeTypes, arcs};
+}
+
+void MergeTree::output(std::string fileName, TreeType tree) {
+    if (tree == TypeContourTree) {
+        ctree.output(fileName);
+        return;
+    }
+
+    auto [noArcs, noNodes, nodeids, nodefns, nodeTypes, arcs] = computeArcMap(tree);
+    
+    // write meta data
+    std::cout << "Writing meta data" << std::endl;
+    {
+        std::ofstream pr(fileName + ".rg.dat");
+        pr << noNodes << "\n";
+        pr << noArcs << "\n";
+        pr.close();
+    }
     std::cout << "writing tree output" << std::endl;
     std::string rgFile = fileName + ".rg.bin";
     std::ofstream of(rgFile,std::ios::binary);
