@@ -79,15 +79,14 @@ void exampleProcessing(std::string dataName, int dimx, int dimy, int dimz, bool 
  */
 std::vector<Feature> exampleQuerying(std::string dataName, bool useArcs, int topk = -1, float threshold = 0) {
     TopologicalFeatures topoFeatures;
+    topoFeatures.loadData(dataName);
 
     std::vector<Feature> features;
     if(useArcs) {
         // get features corresponding to extremum-saddle pairs, i.e., the input is partitioned based on leaf arcs of the contour tree after simplification
-        topoFeatures.loadData(dataName,false);
         features = topoFeatures.getArcFeatures(topk,threshold);
     } else {
         // get features corresponding to branches, i.e., the input is partitioned based on the branch decomposition after simplification
-        topoFeatures.loadData(dataName,true);
         features = topoFeatures.getPartitionedExtremaFeatures(topk,threshold);
     }
     return features;
