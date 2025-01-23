@@ -64,7 +64,11 @@ void SimplifyCT::initSimplification(SimFunction* f) {
     invalid.resize(branches.size(), false);
     inq.resize(branches.size(), false);
 
-    vArray.resize(nodes.size());
+    arcArrayUpper.resize(nodes.size());
+    arcArrayLower.resize(nodes.size());
+
+    vArrayPrev.resize(nodes.size(),-1);
+    vArrayNext.resize(nodes.size(),-1);
 
     simFn = f;
     if (f != NULL) {
@@ -111,10 +115,12 @@ void SimplifyCT::removeArc(uint32_t ano) {
     if (nodes[from].prev.size() == 0) {
         // minimum
         mergedVertex = to;
+        arcArrayLower[mergedVertex].push_back(ano);
     }
     if (nodes[to].next.size() == 0) {
         // maximum
         mergedVertex = from;
+        arcArrayUpper[mergedVertex].push_back(ano);
     }
     nodes[from].next.erase(std::remove(nodes[from].next.begin(), nodes[from].next.end(), ano),
                            nodes[from].next.end());
@@ -122,7 +128,6 @@ void SimplifyCT::removeArc(uint32_t ano) {
                          nodes[to].prev.end());
     removed[ano] = true;
 
-    vArray[mergedVertex].push_back(ano);
     if (nodes[mergedVertex].prev.size() == 1 && nodes[mergedVertex].next.size() == 1) {
         mergeVertex(mergedVertex);
     }
@@ -132,6 +137,10 @@ void SimplifyCT::removeArc(uint32_t ano) {
 void SimplifyCT::mergeVertex(uint32_t v) {
     uint32_t prev = nodes[v].prev.at(0);
     uint32_t next = nodes[v].next.at(0);
+
+    vArrayPrev[v] = branches[prev].from;
+    vArrayNext[v] = branches[next].to;
+
     int a = -1;
     int rem = -1;
     if (inq[prev]) {
@@ -171,8 +180,13 @@ void SimplifyCT::mergeVertex(uint32_t v) {
     //    branches[a].arcs << branches[rem].arcs;
     branches[a].arcs.insert(branches[a].arcs.end(), branches[rem].arcs.begin(),
                             branches[rem].arcs.end());
-    for (int i = 0; i < vArray[v].size(); i++) {
-        uint32_t aa = vArray[v].at(i);
+    for (int i = 0; i < arcArrayLower[v].size(); i++) {
+        uint32_t aa = arcArrayLower[v].at(i);
+        branches[a].children.push_back(aa);
+        branches[aa].parent = a;
+    }
+    for (int i = 0; i < arcArrayUpper[v].size(); i++) {
+        uint32_t aa = arcArrayUpper[v].at(i);
         branches[a].children.push_back(aa);
         branches[aa].parent = a;
     }

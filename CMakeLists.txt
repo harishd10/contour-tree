@@ -33,7 +33,16 @@ set(SOURCE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/ContourTree/TriMesh.cpp
 )
 
+set(MAIN_SOURCE_FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/ContourTree/main.cpp
+)
+
+
 # Create library
 add_library(ContourTree STATIC ${SOURCE_FILES} ${HEADER_FILES})
 
+add_executable(TestContourTree ${MAIN_SOURCE_FILES})
+target_link_libraries(TestContourTree ContourTree)
+
 target_include_directories(ContourTree PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/ContourTree)
+target_include_directories(TestContourTree PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/ContourTree)

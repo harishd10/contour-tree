@@ -16,7 +16,7 @@ class TopologicalFeatures {
 public:
     TopologicalFeatures();
 
-    void loadData(std::string dataLocation, bool partition = false);
+    void loadData(std::string dataLocation);
     std::vector<Feature> getArcFeatures(int topk = -1, float th = 0);
     std::vector<Feature> getPartitionedExtremaFeatures(int topk = -1, float th = 0);
 
@@ -27,7 +27,7 @@ public:
 
     // when completely partitioning branch decomposition
     std::vector<std::vector<uint32_t>> featureArcs;
-    SimplifyCT sim;
+    SimplifyCT gsim;
 
 private:
     void addFeature(SimplifyCT& sim, uint32_t bno, std::vector<Feature>& features,

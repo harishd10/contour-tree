@@ -56,7 +56,8 @@ public:
 
     std::priority_queue<uint32_t, std::vector<uint32_t>, BranchCompare> queue;
     std::vector<uint32_t> order;
-    std::vector<std::vector<uint32_t>> vArray;
+    std::vector<std::vector<uint32_t>> arcArrayUpper, arcArrayLower;
+    std::vector<uint32_t> vArrayPrev, vArrayNext;
 };
 
 }  // namespace contourtree

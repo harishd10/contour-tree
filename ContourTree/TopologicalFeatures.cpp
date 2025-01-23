@@ -10,7 +10,7 @@ namespace contourtree {
 
 TopologicalFeatures::TopologicalFeatures() {}
 
-void TopologicalFeatures::loadData(std::string dataLocation, bool partition) {
+void TopologicalFeatures::loadData(std::string dataLocation) {
     ctdata = ContourTreeData();
     ctdata.loadBinFile(dataLocation);
 
@@ -30,10 +30,8 @@ void TopologicalFeatures::loadData(std::string dataLocation, bool partition) {
     bin.read((char*)wts.data(), wts.size() * sizeof(float));
     bin.close();
 
-    if (partition) {
-        sim.setInput(&ctdata);
-        sim.simplify(order, 1, 0, wts);
-    }
+    gsim.setInput(&ctdata);
+    gsim.simplify(order, 1, 0, wts);
 }
 
 void TopologicalFeatures::addFeature(SimplifyCT& sim, uint32_t bno, std::vector<Feature>& features,
@@ -63,6 +61,25 @@ void TopologicalFeatures::addFeature(SimplifyCT& sim, uint32_t bno, std::vector<
     features.push_back(f);
 }
 
+inline bool isPathPresent(ContourTreeData &ctdata, uint32_t from, uint32_t to) {
+    std::deque<uint32_t> queue;
+    queue.push_back(from);
+    while(queue.size() > 0) {
+        uint32_t v = queue.front();
+        queue.pop_front();
+        if(v == to) {
+            return true;
+        }
+        if(ctdata.fnVals[v] <= ctdata.fnVals[to]) {
+            for(auto ano: ctdata.nodes[v].next) {
+                assert(ctdata.arcs[ano].from == v);
+                queue.push_back(ctdata.arcs[ano].to);
+            }
+        }
+    }
+    return false;
+}
+
 std::vector<Feature> TopologicalFeatures::getPartitionedExtremaFeatures(int topk, float th) {
     std::vector<Feature> features;
 
@@ -82,7 +99,7 @@ std::vector<Feature> TopologicalFeatures::getPartitionedExtremaFeatures(int topk
 
     for (int _i = 0; _i < topk; _i++) {
         size_t i = order.size() - _i - 1;
-        Branch b1 = sim.branches.at(order[i]);
+        Branch b1 = gsim.branches.at(order[i]);
         Feature f;
         f.from = ctdata.nodeVerts[b1.from];
         f.to = ctdata.nodeVerts[b1.to];
@@ -96,7 +113,7 @@ std::vector<Feature> TopologicalFeatures::getPartitionedExtremaFeatures(int topk
             if (b != bno && featureSet.find(b) != featureSet.end()) {
                 continue;
             }
-            Branch br = sim.branches.at(b);
+            Branch br = gsim.branches.at(b);
             f.arcs.insert(f.arcs.end(), br.arcs.data(), br.arcs.data() + br.arcs.size());
             for (int i = 0; i < br.children.size(); i++) {
                 int bc = br.children.at(i);
@@ -106,6 +123,21 @@ std::vector<Feature> TopologicalFeatures::getPartitionedExtremaFeatures(int topk
         features.push_back(f);
     }
     return features;
+}
+
+inline void addArcs(size_t bno, Feature &f, const SimplifyCT &sim) {
+    std::deque<size_t> queue;
+    queue.push_back(bno);
+    while (queue.size() > 0) {
+        size_t b = queue.front();
+        queue.pop_front();
+        Branch br = sim.branches.at(b);
+        f.arcs.insert(f.arcs.end(), br.arcs.data(), br.arcs.data() + br.arcs.size());
+        for (int i = 0; i < br.children.size(); i++) {
+            int bc = br.children.at(i);
+            queue.push_back(bc);
+        }
+    }
 }
 
 std::vector<Feature> TopologicalFeatures::getArcFeatures(int topk, float th) {
@@ -132,21 +164,26 @@ std::vector<Feature> TopologicalFeatures::getArcFeatures(int topk, float th) {
         f.from = ctdata.nodeVerts[b1.from];
         f.to = ctdata.nodeVerts[b1.to];
 
-        size_t bno = i;
-        std::deque<size_t> queue;
-        queue.push_back(bno);
-        while (queue.size() > 0) {
-            size_t b = queue.front();
-            queue.pop_front();
-            if (b != bno && featureSet.find(b) != featureSet.end()) {
-                // this cannot happen
-                assert(false);
+        addArcs(i,f,sim);
+        // add arcs from multi saddles
+        if(sim.arcArrayUpper[b1.from].size() > 0) {
+            // find if b1.from to uv shares the path from b1.from to b1.to
+            // for this it is sufficient to check whether there exists a non-decreasing path from b1.to to uv
+            uint32_t uv = gsim.vArrayNext[b1.from];
+            if(isPathPresent(this->ctdata,b1.to,uv)) {
+                for(auto a : sim.arcArrayUpper[b1.from]) {
+                    addArcs(a,f,sim);
+                }
             }
-            Branch br = sim.branches.at(b);
-            f.arcs.insert(f.arcs.end(), br.arcs.data(), br.arcs.data() + br.arcs.size());
-            for (int i = 0; i < br.children.size(); i++) {
-                int bc = br.children.at(i);
-                queue.push_back(bc);
+        }
+        if(sim.arcArrayLower[b1.to].size() > 0) {
+            // find if b1.to to lv shares the path from b1.to to b1.from
+            // for this it is sufficient to check whether there exists a non-increasing path from b1.from to uv
+            uint32_t lv = gsim.vArrayPrev[b1.to];
+            if(isPathPresent(this->ctdata,lv,b1.from)) {
+                for(auto a : sim.arcArrayLower[b1.to]) {
+                    addArcs(a,f,sim);
+                }
             }
         }
         features.push_back(f);
