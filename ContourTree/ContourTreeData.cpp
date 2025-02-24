@@ -7,6 +7,8 @@
 
 namespace contourtree {
 
+#define EPSILON 1e-10
+
 ContourTreeData::ContourTreeData() {}
 
 void ContourTreeData::loadBinFile(std::string fileName) {
@@ -84,12 +86,16 @@ void ContourTreeData::loadData(const std::vector<int64_t>& nodeids,
                                const std::vector<scalar_t>& nodefns,
                                const std::vector<char>& nodeTypes,
                                const std::vector<int64_t>& iarcs) {
+    origNodes = noNodes;
+    origArcs = noArcs;
+
     nodes.resize(noNodes);
     nodeVerts.resize(noNodes);
     fnVals.resize(noNodes);
     type.resize(noNodes);
     arcs.resize(noArcs);
 
+    maxNodeId = 0;
     scalar_t minf = nodefns[0];
     scalar_t maxf = nodefns[noNodes - 1];
     for (uint32_t i = 0; i < noNodes; i++) {
@@ -98,6 +104,7 @@ void ContourTreeData::loadData(const std::vector<int64_t>& nodeids,
         fnVals[i] = (float)(nodefns[i] - minf) / (maxf - minf);
         type[i] = nodeTypes[i];
         nodeMap[nodeVerts[i]] = i;
+        maxNodeId = std::max(maxNodeId,nodeVerts[i]);
     }
 
     for (uint32_t i = 0; i < noArcs; i++) {
@@ -106,6 +113,69 @@ void ContourTreeData::loadData(const std::vector<int64_t>& nodeids,
         arcs[i].id = i;
         nodes[arcs[i].from].next.push_back(i);
         nodes[arcs[i].to].prev.push_back(i);
+    }
+
+    this->handleDegenerateExtrema();
+}
+
+void ContourTreeData::handleDegenerateExtrema() {
+    uint32_t nn = noNodes;
+    for(int i = 0;i < nn;i ++) {
+        if(nodes[i].prev.size() == 0) {
+            // minima
+            if(nodes[i].next.size() > 1) {
+                // degenerate
+                int64_t newNode = noNodes;
+                uint32_t newArc = noArcs;
+
+                nodeVerts.push_back(maxNodeId+1);
+                nodeMap[maxNodeId+1] = newNode;
+                fnVals.push_back(fnVals[i] - EPSILON);
+                type.push_back(MINIMUM);
+                type[i] = SADDLE;
+
+                arcs.push_back(Arc());
+                arcs[newArc].from = newNode;
+                arcs[newArc].to = i;
+                arcs[newArc].id = newArc;
+
+                nodes.push_back(Node());
+                nodes[newNode].next.push_back(newArc);
+                nodes[i].prev.push_back(newArc);
+
+                noArcs ++;
+                noNodes ++;
+                maxNodeId ++;
+            }
+        }
+
+        if(nodes[i].next.size() == 0) {
+            // maxima
+            if(nodes[i].prev.size() > 1) {
+                // degenerate
+                int64_t newNode = noNodes;
+                uint32_t newArc = noArcs;
+
+                nodeVerts.push_back(maxNodeId+1);
+                nodeMap[maxNodeId+1] = newNode;
+                fnVals.push_back(fnVals[i]);
+                type.push_back(MAXIMUM);
+                type[i] = SADDLE;
+
+                arcs.push_back(Arc());
+                arcs[newArc].from = i;
+                arcs[newArc].to = newNode;
+                arcs[newArc].id = newArc;
+
+                nodes.push_back(Node());
+                nodes[newNode].prev.push_back(newArc);
+                nodes[i].next.push_back(newArc);
+
+                noArcs ++;
+                noNodes ++;
+                maxNodeId ++;
+            }
+        }
     }
 }
 

@@ -30,10 +30,11 @@ public:
 protected:
     void loadData(const std::vector<int64_t>& nodeids, const std::vector<scalar_t>& nodefns,
                   const std::vector<char>& nodeTypes, const std::vector<int64_t>& iarcs);
+    void handleDegenerateExtrema();
 
 public:
-    uint32_t noNodes;
-    uint32_t noArcs;
+    uint32_t noNodes, origNodes;
+    uint32_t noArcs, origArcs;
 
     std::vector<Node> nodes;
     std::vector<Arc> arcs;
@@ -42,6 +43,9 @@ public:
     std::vector<int64_t> nodeVerts;
 
     std::unordered_map<int64_t, uint32_t> nodeMap;
+
+    // handle degenerate extrema
+    int64_t maxNodeId;
 };
 
 }  // namespace contourtree
