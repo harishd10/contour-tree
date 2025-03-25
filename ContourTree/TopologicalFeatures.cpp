@@ -80,7 +80,7 @@ inline bool isPathPresent(ContourTreeData &ctdata, uint32_t from, uint32_t to) {
     return false;
 }
 
-std::vector<Feature> TopologicalFeatures::getPartitionedExtremaFeatures(int topk, float th) {
+std::vector<Feature> TopologicalFeatures::getPartitionedExtremaFeatures(int &topk, float th) {
     std::vector<Feature> features;
 
     std::set<size_t> featureSet;
@@ -140,11 +140,11 @@ inline void addArcs(size_t bno, Feature &f, const SimplifyCT &sim) {
     }
 }
 
-std::vector<Feature> TopologicalFeatures::getArcFeatures(int topk, float th) {
+std::vector<Feature> TopologicalFeatures::getArcFeatures(int &topk, float th) {
     SimplifyCT sim;
     sim.setInput(&ctdata);
 
-    sim.simplify(order, topk, th, wts);
+    topk = sim.simplify(order, topk, th, wts);
 
     std::vector<Feature> features;
     std::set<size_t> featureSet;

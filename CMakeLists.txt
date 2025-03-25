@@ -19,6 +19,7 @@ set(HEADER_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/ContourTree/SimplifyCT.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/ContourTree/TopologicalFeatures.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/ContourTree/TriMesh.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/ContourTree/LayoutCT.hpp
 )
 
 # Add source files
@@ -31,6 +32,7 @@ set(SOURCE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/ContourTree/SimplifyCT.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/ContourTree/TopologicalFeatures.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/ContourTree/TriMesh.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/ContourTree/LayoutCT.cpp
 )
 
 set(MAIN_SOURCE_FILES
