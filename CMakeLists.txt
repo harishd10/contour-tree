@@ -53,13 +53,13 @@ target_include_directories(TestContourTree PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Co
 find_package(pybind11 REQUIRED)
 find_package(Python3 COMPONENTS Interpreter Development NumPy REQUIRED)
 
-add_library(contour_tree_python MODULE
+add_library(pyct MODULE
     python/PyBindings.cpp
 )
-target_link_libraries(contour_tree_python PRIVATE pybind11::module ContourTree Python3::Python Python3::NumPy)
-target_include_directories(contour_tree_python PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/ContourTree)
-set_target_properties(contour_tree_python PROPERTIES
+target_link_libraries(pyct PRIVATE pybind11::module ContourTree Python3::Python Python3::NumPy)
+target_include_directories(pyct PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/ContourTree)
+set_target_properties(pyct PROPERTIES
     PREFIX ""
-    OUTPUT_NAME "contour_tree"
+    OUTPUT_NAME "pyct"
     SUFFIX ".pyd"
 )
