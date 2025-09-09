@@ -38,7 +38,7 @@ set(SOURCE_FILES
 )
 
 set(MAIN_SOURCE_FILES
-    ${CMAKE_CURRENT_SOURCE_DIR}/ContourTree/main.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/cpp-example/main.cpp
 )
 
 

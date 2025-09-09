@@ -65,7 +65,7 @@ void exampleProcessing(std::string dataName, int dimx, int dimy, int dimz, bool 
     end = std::chrono::system_clock::now();
     std::cout << "Time to simplify: " << std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count() << "ms\n";
 
-    sim.outputOrder(data);
+    sim.outputOrder(data,true);
     std::cout << "done" << std::endl;
 }
 
@@ -101,7 +101,7 @@ void exampleLayout(std::string dataName, int &topk, float threshold = 0) {
     std::vector<Feature> features = topoFeatures.getArcFeatures(topk,threshold);
 
     // get the locations of the nodes in 3D
-    LayoutCT layout(&topoFeatures.gsim, topoFeatures.order);
+    LayoutCT layout(&topoFeatures);
     layout.layoutTree(topk);
     std::unordered_map<uint32_t, Point> locations = layout.getNodeLocations();
 

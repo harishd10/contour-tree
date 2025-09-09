@@ -1,7 +1,7 @@
 #ifndef LAYOUTCT_HPP
 #define LAYOUTCT_HPP
 
-#include "SimplifyCT.hpp"
+#include "TopologicalFeatures.hpp"
 #include <unordered_map>
 #include <unordered_set>
 namespace contourtree {
@@ -23,7 +23,7 @@ struct BranchLocation {
 class LayoutCT
 {
 public:
-    LayoutCT(SimplifyCT *sim, std::vector<uint32_t> &order);
+    LayoutCT(TopologicalFeatures* tf);
 
     void layoutTree(int simplifiedCount);
     std::unordered_map<uint32_t, Point> getNodeLocations();

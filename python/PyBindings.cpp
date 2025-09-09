@@ -129,21 +129,29 @@ PYBIND11_MODULE(pyct, m) {
             static_cast<void (contourtree::SimplifyCT::*)(contourtree::SimFunction*)>(&contourtree::SimplifyCT::simplify),
             py::arg("simFn"),
             "Simplify using Persistence or HyperVolume")
-        .def("outputOrder", &contourtree::SimplifyCT::outputOrder, py::arg("fileName"), py::arg("normalize") = true, "Write the branch removal order to disk");
+        .def("outputOrder", &contourtree::SimplifyCT::outputOrder, py::arg("fileName"), py::arg("normalize"), "Write the branch removal order to disk");
 
     // Expose TopologicalFeatures::Feature class
     py::class_<contourtree::Feature>(m, "Feature")
         .def(py::init<>())
         .def_readwrite("arcs", &contourtree::Feature::arcs)
-        .def_readwrite("from", &contourtree::Feature::from)
+        .def_readwrite("frm", &contourtree::Feature::from)
         .def_readwrite("to", &contourtree::Feature::to);
 
     // Expose TopologicalFeatures class
     py::class_<contourtree::TopologicalFeatures>(m, "TopologicalFeatures")
         .def(py::init<>())
         .def("loadData", &contourtree::TopologicalFeatures::loadData, py::arg("filename"))
-        .def("getArcFeatures", &contourtree::TopologicalFeatures::getArcFeatures, py::arg("topk"), py::arg("th") = 0.0f)
-        .def("getPartitionedExtremaFeatures", &contourtree::TopologicalFeatures::getPartitionedExtremaFeatures, py::arg("topk"), py::arg("th") = 0.0f);
+        .def("getArcFeatures", [](contourtree::TopologicalFeatures& self, int topk, float th) {
+            int topk_copy = topk;
+            auto features = self.getArcFeatures(topk_copy, th);
+            return py::make_tuple(features, topk_copy);
+        }, py::arg("topk"), py::arg("th") = 0.0f, "Returns tuple of (features, updated_topk)")
+        .def("getPartitionedExtremaFeatures", [](contourtree::TopologicalFeatures& self, int topk, float th) {
+            int topk_copy = topk;
+            auto features = self.getPartitionedExtremaFeatures(topk_copy, th);
+            return py::make_tuple(features, topk_copy);
+        }, py::arg("topk"), py::arg("th") = 0.0f, "Returns tuple of (features, updated_topk)");
 
     // Expose Point struct
     py::class_<contourtree::Point>(m, "Point")
@@ -154,8 +162,7 @@ PYBIND11_MODULE(pyct, m) {
 
     // Expose LayoutCT class
     py::class_<contourtree::LayoutCT>(m, "LayoutCT")
-        .def(py::init<contourtree::SimplifyCT*, std::vector<uint32_t>&>(), 
-             py::arg("sim"), py::arg("order"))
+        .def(py::init<contourtree::TopologicalFeatures*>(), py::arg("tf"))
         .def("layoutTree", &contourtree::LayoutCT::layoutTree, py::arg("simplifiedCount"))
         .def("getNodeLocations", &contourtree::LayoutCT::getNodeLocations);
 

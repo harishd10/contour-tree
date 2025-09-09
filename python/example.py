@@ -56,7 +56,7 @@ def example_processing(data_name: str, dimx: int, dimy: int, dimz: int, persiste
     t3 = time.time()
     print(f"Time to simplify: {(t3 - t2)*1000:.0f}ms")
 
-    sim.outputOrder(data_name)
+    sim.outputOrder(data_name, True)
     print("done")
 
 
@@ -84,10 +84,11 @@ def example_layout(data_name: str, topk: int, threshold: float = 0.0):
     topo.loadData(data_name)
 
     # Get features. the way to get layout when getPartitionedFeatures is used is similar
-    features = topo.getArcFeatures(topk, threshold)
+    features, topk = topo.getArcFeatures(topk, threshold)
+    print("topk = ", topk)
 
     # Get the locations of the nodes in 3D
-    layout = ct.LayoutCT(topo.gsim, topo.order)
+    layout = ct.LayoutCT(topo)
     layout.layoutTree(topk)
     locations = layout.getNodeLocations()
 
@@ -116,7 +117,7 @@ def example_layout(data_name: str, topk: int, threshold: float = 0.0):
         
         # Write edges
         for feature in features:
-            f.write(f"2 {nodemap[feature.from_]} {nodemap[feature.to]}\n")
+            f.write(f"2 {nodemap[feature.frm]} {nodemap[feature.to]}\n")
     
     print(f"Layout written to {off_filename}")
     return features, locations
@@ -148,12 +149,9 @@ def main():
         print(f"Partitioned extrema features: {len(feats2)}")
 
     if args.layout:
-        if args.topk <= 0:
-            print("Error: --topk must be positive for layout generation")
-        else:
-            print("generating layout")
-            features, locations = example_layout(args.data_name, args.topk, args.threshold)
-            print(f"Layout generated with {len(features)} features and {len(locations)} nodes")
+        print("generating layout")
+        features, locations = example_layout(args.data_name, args.topk, args.threshold)
+        print(f"Layout generated with {len(features)} features and {len(locations)} nodes")
 
 
 if __name__ == "__main__":

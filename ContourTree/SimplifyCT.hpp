@@ -30,7 +30,7 @@ public:
     void simplify(SimFunction* simFn);
     int simplify(const std::vector<uint32_t>& order, int topk = -1, float th = 0,
                   const std::vector<float>& wts = std::vector<float>());
-    void outputOrder(std::string fileName, bool normalize = true);
+    void outputOrder(std::string fileName, bool normalize);
 
 protected:
     void initSimplification(SimFunction* f);

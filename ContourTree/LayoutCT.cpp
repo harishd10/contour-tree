@@ -8,8 +8,8 @@
 
 namespace contourtree {
 
-LayoutCT::LayoutCT(SimplifyCT *sim, std::vector<uint32_t>& order) : order(order), rootTwo (std::sqrt(2)) {
-    this->simct = sim;
+LayoutCT::LayoutCT(TopologicalFeatures* tf): order(tf->order), rootTwo (std::sqrt(2)) {
+    this->simct = &tf->gsim;
 }
 
 void LayoutCT::layoutTree(int simplifiedCount) {
