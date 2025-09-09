@@ -75,6 +75,53 @@ def example_querying(data_name: str, use_arcs: bool, topk: int = -1, threshold: 
     return features
 
 
+def example_layout(data_name: str, topk: int, threshold: float = 0.0):
+    """
+    Replicates exampleLayout from C++ main.cpp using the Python bindings.
+    Computes layout for contour tree visualization and writes to OFF format.
+    """
+    topo = ct.TopologicalFeatures()
+    topo.loadData(data_name)
+
+    # Get features. the way to get layout when getPartitionedFeatures is used is similar
+    features = topo.getArcFeatures(topk, threshold)
+
+    # Get the locations of the nodes in 3D
+    layout = ct.LayoutCT(topo.gsim, topo.order)
+    layout.layoutTree(topk)
+    locations = layout.getNodeLocations()
+
+    # Writing to OFF to visualize the layout
+    # Note that in case getPartitionedFeatures() is used, the L shaped branches should be manually added
+
+    # Create node mapping
+    ct_count = 0
+    nodemap = {}
+    nodeids = []
+    for node_id, point in locations.items():
+        nodemap[node_id] = ct_count
+        nodeids.append(node_id)
+        ct_count += 1
+
+    # Write OFF file
+    off_filename = f"{data_name}.off"
+    with open(off_filename, 'w') as f:
+        f.write("OFF\n")
+        f.write(f"{ct_count} {len(features)} 0\n")
+        
+        # Write vertices
+        for i in range(ct_count):
+            point = locations[nodeids[i]]
+            f.write(f"{point.x} {point.y} {point.z}\n")
+        
+        # Write edges
+        for feature in features:
+            f.write(f"2 {nodemap[feature.from_]} {nodemap[feature.to]}\n")
+    
+    print(f"Layout written to {off_filename}")
+    return features, locations
+
+
 def main():
     p = argparse.ArgumentParser(description="Contour Tree Python demo")
     p.add_argument("data_name", help="Path prefix to the input grid (without extension)")
@@ -84,6 +131,7 @@ def main():
     p.add_argument("--compute", action="store_true", help="Run example_processing")
     p.add_argument("--no-persistence", dest="persistence", action="store_false", help="Use HyperVolume instead of Persistence for simplification")
     p.add_argument("--query", action="store_true", help="Run the example querying and print number of features")
+    p.add_argument("--layout", action="store_true", help="Run the example layout and generate OFF file")
     p.add_argument("--topk", type=int, default=-1, help="Top-k features for querying (use -1 to disable)")
     p.add_argument("--threshold", type=float, default=0.0, help="Simplification Threshold for querying (used when topk = -1)")
 
@@ -98,6 +146,14 @@ def main():
         print(f"Arc features: {len(feats)}")
         feats2 = example_querying(args.data_name, use_arcs=False, topk=args.topk, threshold=args.threshold)
         print(f"Partitioned extrema features: {len(feats2)}")
+
+    if args.layout:
+        if args.topk <= 0:
+            print("Error: --topk must be positive for layout generation")
+        else:
+            print("generating layout")
+            features, locations = example_layout(args.data_name, args.topk, args.threshold)
+            print(f"Layout generated with {len(features)} features and {len(locations)} nodes")
 
 
 if __name__ == "__main__":

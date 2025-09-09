@@ -226,7 +226,7 @@ void SimplifyCT::simplify(SimFunction* simFn) {
     }
 }
 
-void SimplifyCT::simplify(const std::vector<uint32_t>& order, int topk, float th,
+int SimplifyCT::simplify(const std::vector<uint32_t>& order, int topk, float th,
                           const std::vector<float>& wts) {
     std::cout << "init" << std::endl;
     initSimplification(NULL);
@@ -235,6 +235,7 @@ void SimplifyCT::simplify(const std::vector<uint32_t>& order, int topk, float th
     for (int i = 0; i < order.size(); i++) {
         inq[order.at(i)] = true;
     }
+    int removed = 0;
     if (topk > 0) {
         size_t ct = order.size() - topk;
         for (int i = 0; i < ct; i++) {
@@ -259,11 +260,14 @@ void SimplifyCT::simplify(const std::vector<uint32_t>& order, int topk, float th
             }
             inq[ano] = false;
             removeArc(ano);
+            removed ++;
         }
+        topk = order.size() - removed;
     }
+    return topk;
 }
 
-void SimplifyCT::outputOrder(std::string fileName) {
+void SimplifyCT::outputOrder(std::string fileName, bool normalize) {
     std::cout << "Writing meta data" << std::endl;
     {
         std::ofstream pr(fileName + ".order.dat");
@@ -278,10 +282,12 @@ void SimplifyCT::outputOrder(std::string fileName) {
     }
 
     // normalize weights
-    float maxWt = wts.at(wts.size() - 1);
-    if (maxWt == 0) maxWt = 1;
-    for (int i = 0; i < wts.size(); i++) {
-        wts[i] /= maxWt;
+    if(normalize) {
+        float maxWt = wts.at(wts.size() - 1);
+        if (maxWt == 0) maxWt = 1;
+        for (int i = 0; i < wts.size(); i++) {
+            wts[i] /= maxWt;
+        }
     }
 
     std::cout << "writing tree output" << std::endl;

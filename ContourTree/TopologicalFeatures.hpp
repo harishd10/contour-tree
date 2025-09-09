@@ -17,8 +17,8 @@ public:
     TopologicalFeatures();
 
     void loadData(std::string dataLocation);
-    std::vector<Feature> getArcFeatures(int topk = -1, float th = 0);
-    std::vector<Feature> getPartitionedExtremaFeatures(int topk = -1, float th = 0);
+    std::vector<Feature> getArcFeatures(int &topk, float th = 0);
+    std::vector<Feature> getPartitionedExtremaFeatures(int &topk, float th = 0);
 
 public:
     ContourTreeData ctdata;

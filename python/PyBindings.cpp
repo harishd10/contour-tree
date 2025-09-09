@@ -13,6 +13,7 @@
 #include "Persistence.hpp"
 #include "HyperVolume.hpp"
 #include "TopologicalFeatures.hpp"
+#include "LayoutCT.hpp"
 
 namespace py = pybind11;
 
@@ -128,12 +129,7 @@ PYBIND11_MODULE(pyct, m) {
             static_cast<void (contourtree::SimplifyCT::*)(contourtree::SimFunction*)>(&contourtree::SimplifyCT::simplify),
             py::arg("simFn"),
             "Simplify using Persistence or HyperVolume")
-        .def(
-            "simplify",
-            static_cast<void (contourtree::SimplifyCT::*)(const std::vector<uint32_t>&, int, float, const std::vector<float>&)>(&contourtree::SimplifyCT::simplify),
-            py::arg("order"), py::arg("topk") = -1, py::arg("th") = 0.0f, py::arg("wts") = std::vector<float>{},
-            "Simplify using a precomputed branch order; optional top-k, threshold, and weights")
-        .def("outputOrder", &contourtree::SimplifyCT::outputOrder, py::arg("fileName"), "Write the branch removal order to disk");
+        .def("outputOrder", &contourtree::SimplifyCT::outputOrder, py::arg("fileName"), py::arg("normalize") = true, "Write the branch removal order to disk");
 
     // Expose TopologicalFeatures::Feature class
     py::class_<contourtree::Feature>(m, "Feature")
@@ -146,7 +142,21 @@ PYBIND11_MODULE(pyct, m) {
     py::class_<contourtree::TopologicalFeatures>(m, "TopologicalFeatures")
         .def(py::init<>())
         .def("loadData", &contourtree::TopologicalFeatures::loadData, py::arg("filename"))
-        .def("getArcFeatures", &contourtree::TopologicalFeatures::getArcFeatures)
-        .def("getPartitionedExtremaFeatures", &contourtree::TopologicalFeatures::getPartitionedExtremaFeatures);
+        .def("getArcFeatures", &contourtree::TopologicalFeatures::getArcFeatures, py::arg("topk"), py::arg("th") = 0.0f)
+        .def("getPartitionedExtremaFeatures", &contourtree::TopologicalFeatures::getPartitionedExtremaFeatures, py::arg("topk"), py::arg("th") = 0.0f);
+
+    // Expose Point struct
+    py::class_<contourtree::Point>(m, "Point")
+        .def(py::init<>())
+        .def_readwrite("x", &contourtree::Point::x)
+        .def_readwrite("y", &contourtree::Point::y)
+        .def_readwrite("z", &contourtree::Point::z);
+
+    // Expose LayoutCT class
+    py::class_<contourtree::LayoutCT>(m, "LayoutCT")
+        .def(py::init<contourtree::SimplifyCT*, std::vector<uint32_t>&>(), 
+             py::arg("sim"), py::arg("order"))
+        .def("layoutTree", &contourtree::LayoutCT::layoutTree, py::arg("simplifiedCount"))
+        .def("getNodeLocations", &contourtree::LayoutCT::getNodeLocations);
 
 }

@@ -11,7 +11,7 @@
 #include "TriMesh.hpp"
 #include "TopologicalFeatures.hpp"
 #include "HyperVolume.hpp"
-
+#include "LayoutCT.hpp";
 
 using namespace contourtree;
 
@@ -90,6 +90,43 @@ std::vector<Feature> exampleQuerying(std::string dataName, bool useArcs, int top
         features = topoFeatures.getPartitionedExtremaFeatures(topk,threshold);
     }
     return features;
+}
+
+
+void exampleLayout(std::string dataName, int &topk, float threshold = 0) {
+    TopologicalFeatures topoFeatures;
+    topoFeatures.loadData(dataName);
+
+    // the way to get layout for getPartitionedFeatures is similar
+    std::vector<Feature> features = topoFeatures.getArcFeatures(topk,threshold);
+
+    // get the locations of the nodes in 3D
+    LayoutCT layout(&topoFeatures.gsim, topoFeatures.order);
+    layout.layoutTree(topk);
+    std::unordered_map<uint32_t, Point> locations = layout.getNodeLocations();
+
+    // writing to OFF to visualize the layout.
+    // Note that in case getPartitionedFeatures() is used, the L shaped branches should be manually added.
+
+    // create node mapping
+    int ct = 0;
+    std::unordered_map<uint32_t,uint32_t> nodemap;
+    std::vector<uint32_t> nodeids;
+    for(auto l: locations) {
+        nodemap[l.first] = ct ++;
+        nodeids.push_back(l.first);
+    }
+
+    std::ofstream op(dataName + ".off");
+    op << "OFF\n";
+    op << ct << " " << features.size() << " 0\n";
+    for(int i = 0;i < ct;i ++) {
+        op << locations[nodeids[i]].x << " " << locations[nodeids[i]].y << " " << locations[nodeids[i]].z << "\n";
+    }
+    for(int i = 0;i < features.size();i ++) {
+        op << "2 " << nodemap[features[i].from] << " " << nodemap[features[i].to] << "\n";
+    }
+    op.close();
 }
 
 int main(int argc, char *argv[]) {
