@@ -24,3 +24,10 @@ Note that, support for other input types can be added by implementing a subclass
 I would appreciate it if you can let me know (http://www.harishd.com/home/contact/) if you use this code, 
 and optionally, how you are using it (this is purely to keep approximate count of the users of this code).
 
+### Building Wheels
+To build an installable python wheel, follow these steps:
+
+1. Create a virtual env (or conda env) with python 3.7 or later
+1. Activate the virtual environment and run `pip install numpy build`
+1. Run `python -m build .`
+1. The built wheel should now be in the `dist/` directory, and can be installed by running `pip install dist/pyct-1.0.0-cp3xx-cp3xx-os_arch.whl`

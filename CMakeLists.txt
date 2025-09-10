@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.11)
 
 project(ContourTree)
 
@@ -51,8 +51,17 @@ target_link_libraries(TestContourTree ContourTree)
 target_include_directories(ContourTree PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/ContourTree)
 target_include_directories(TestContourTree PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/ContourTree)
 
-# Python bindings (pybind11)
-find_package(pybind11 REQUIRED)
+# Python bindings (pybind11) - Dynamically Fetched
+include(FetchContent)
+
+FetchContent_Declare(
+    pybind11
+    GIT_REPOSITORY https://github.com/pybind/pybind11.git
+    GIT_TAG        v2.13.0
+)
+# Make sure the pybind11 content is available
+FetchContent_MakeAvailable(pybind11)
+
 find_package(Python3 COMPONENTS Interpreter Development NumPy REQUIRED)
 
 add_library(pyct MODULE
@@ -65,3 +74,12 @@ set_target_properties(pyct PROPERTIES
     OUTPUT_NAME "pyct"
     SUFFIX ".pyd"
 )
+
+# Install the library and the python module into the wheel
+install(TARGETS pyct 
+        DESTINATION pyct 
+        COMPONENT python)
+
+install(FILES __init__.py 
+        DESTINATION pyct 
+        COMPONENT python)

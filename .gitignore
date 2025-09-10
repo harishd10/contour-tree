@@ -1,3 +1,6 @@
 *.pro.user
 *.o
 build-*
+
+# built wheel directories
+dist/
