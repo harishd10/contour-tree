@@ -35,6 +35,9 @@ install.components = ["python"]
 
 # build-type = "Debug"
 source-dir = "."
+args = [
+  "-DBUILD_PYCT"
+]
 
 # After building, invoke `install`
 targets = ["install"]
