@@ -1,0 +1,43 @@
+[build-system]
+requires = [
+  "scikit-build-core[pyproject]",
+  "pybind11",
+  "cibuildwheel",
+  "numpy",
+]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "pyct"
+version = "1.0.0"
+description = "Python bindings for the ContourTree C++ library"
+authors = [
+  { name = "Harish Doraiswamy" },
+]
+license = { text = "BSD-3-Clause" }
+dependencies = [
+  "numpy",
+]
+
+# ──────────────────────────────────────────────────────────
+[tool.scikit-build]
+# Where the cmake builds files go during the building process
+build-dir = "build-pyct/"
+
+# Which Python packages go into your wheel
+
+wheel.packages = ["pyct"]
+install.strip = false
+install.components = ["python"]
+
+# ──────────────────────────────────────────────────────────
+[tool.scikit-build.cmake]
+
+# build-type = "Debug"
+source-dir = "."
+args = [
+  "-DBUILD_PYCT"
+]
+
+# After building, invoke `install`
+targets = ["install"]
