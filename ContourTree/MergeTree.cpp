@@ -14,7 +14,7 @@ namespace contourtree {
 
 MergeTree::MergeTree() { newRoot = 0; }
 
-void MergeTree::computeTree(ScalarFunction* data, TreeType type) {
+void MergeTree::computeTree(std::shared_ptr<ScalarFunction> data, TreeType type) {
     this->data = data;
     std::chrono::time_point<std::chrono::system_clock> ct, en;
     ct = std::chrono::system_clock::now();
